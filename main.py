@@ -5,14 +5,13 @@ from colorama import Fore, Style
 from dotenv import load_dotenv
 from functions import *
 
-URL = "https://mangadex.org/title/2c891277-3d4b-4303-ad1d-e87c39a6e10c/nozoki-ana"
+#URL = "https://mangadex.org/title/2c891277-3d4b-4303-ad1d-e87c39a6e10c/nozoki-ana"
 
 
 # Define manga page URL
 print(Fore.GREEN + "Starting..." + Style.RESET_ALL)
-#TODO: Remove this
-manga_url = URL
-#manga_url = input("Paste manga URL, or type 'exit' to quit: ").lower()
+#manga_url = URL
+manga_url = input("Paste manga URL, or type 'exit' to quit: ").lower()
 
 # Set Global Variables
 manga_name = manga_url.split("/")[-1]

@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5001:5001"
+    volumes:
+      - .:/app
+      - manga_data:/app/data
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - WITH_PROXY=no
+      - BATCH_SIZE=5
+    restart: unless-stopped
+
+volumes:
+  manga_data:
+    driver: local 
