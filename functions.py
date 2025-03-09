@@ -218,6 +218,7 @@ def download_images(manga_name, volume, chapter):
 
 
 def get_chapters_images(manga_name):
+    update_status(manga_name, 'downloading_chapters', 40, 'Downloading chapters...')
     # Get the volumes
     with open(f'data/{manga_name}/json/volumes.json', 'r') as f:
         volumes = json.load(f)
@@ -369,3 +370,11 @@ def make_cbr_cbz(manga_name):
                 shutil.rmtree(Path(temp_dir).parent)
         except:
             pass
+
+def update_status(manga_name, status, progress, message):
+    from app import download_status
+    download_status[manga_name].update({
+        'status': status,
+        'progress': progress,
+        'message': message
+    })

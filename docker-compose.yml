@@ -6,14 +6,23 @@ services:
     ports:
       - "5001:5001"
     volumes:
-      - .:/app
+      # Mount specific Python files for development
+      - ./app.py:/app/app.py
+      - ./functions.py:/app/functions.py
+      - ./main.py:/app/main.py
+      # Mount templates directory
+      - ./templates:/app/templates
+      # Mount data directory for manga storage
       - manga_data:/app/data
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
+      - FLASK_DEBUG=1
       - WITH_PROXY=no
       - BATCH_SIZE=5
     restart: unless-stopped
+    # Use Flask development server with hot reload
+    command: flask run --host=0.0.0.0 --port=5001 --reload
 
 volumes:
   manga_data:

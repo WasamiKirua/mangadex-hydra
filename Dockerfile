@@ -3,33 +3,40 @@ FROM python:3.12-slim-bullseye
 WORKDIR /app
 
 # Install system dependencies for patool and rar
-RUN apt-get update
-RUN apt-get install software-properties-common -y
-RUN apt-add-repository contrib -y 
-RUN apt-add-repository non-free -y
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
+
+# Add contrib and non-free repositories
+RUN apt-get update && \
+    apt-add-repository contrib -y && \
+    apt-add-repository non-free -y
+
+# Install rar and 7zip
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     unrar \
     p7zip-full \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install dependencies using pip, you can use uv if you want
-RUN pip install -r requirements.txt
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
-COPY . .
+# Create data directory with proper permissions
+RUN mkdir -p /app/data && chmod 777 /app/data
 
+# Don't copy the application code - it will be mounted
 # Set environment variables
 ENV FLASK_APP=app.py
 ENV FLASK_ENV=development
+ENV FLASK_DEBUG=1
 
 # Expose the port
 EXPOSE 5001
 
-# Run the application
-CMD ["flask", "run", "--host=0.0.0.0", "--port=5001"]
+# Use flask run as the default command
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5001", "--reload"]
