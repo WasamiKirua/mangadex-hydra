@@ -5,26 +5,139 @@ A Python tool to download manga from MangaDex and create CBR/CBZ archives with p
 ## Features
 
 - Download manga volumes and chapters from MangaDex
+- Beautiful web interface with real-time progress tracking
 - Support for proxy usage with automatic IP rotation
 - Concurrent image downloads with configurable batch size
 - Progress tracking with colored output
 - Creates properly organized CBR/CBZ archives
 - Maintains correct ordering of volumes, chapters, and pages
+- Kawaii-styled interface with cute notifications
+- Docker support for easy deployment
 
-## Requirements
+## Interface
 
-- Python 3.8+
-- uv package manager
+### Download Page
+![Download Interface](screenshots/screenshot_download.png)
+*The main download interface with real-time progress tracking*
 
-## Installation
+### Downloads Manager
+![Downloads Manager](screenshots/screenshot_downloads.png)
+*Manage your downloaded manga with cute notifications*
 
+## Docker Installation
+
+### Prerequisites
+- Docker
+- Docker Compose
+
+### Quick Start
 1. Clone the repository:
 ```bash
 git clone [repository-url]
 cd mangadex-downloader
 ```
 
-2. Create a virtual environment and install dependencies using uv:
+2. Build and start the containers:
+```bash
+docker-compose up --build
+```
+
+3. Access the web interface at `http://localhost:5001`
+
+## Docker Compose Configuration
+
+### Basic Usage
+```yaml
+# Start the application
+docker-compose up -d
+
+# Stop the application
+docker-compose down
+
+# Rebuild after changes
+docker-compose up --build
+
+# View logs
+docker-compose logs -f
+```
+
+### Development Mode
+The default configuration includes:
+- Hot-reloading for Python files
+- Volume mounts for real-time code changes
+- Debug mode enabled
+- Persistent manga storage
+
+### Volume Mounts
+```yaml
+volumes:
+  - ./app.py:/app/app.py
+  - ./functions.py:/app/functions.py
+  - ./main.py:/app/main.py
+  - ./templates:/app/templates
+  - ./data:/app/data  # Persistent manga storage
+```
+
+### Environment Variables
+Configure these in `docker-compose.yml`:
+```yaml
+environment:
+  - FLASK_APP=app.py
+  - FLASK_ENV=development
+  - FLASK_DEBUG=1
+  - WITH_PROXY=no
+  - BATCH_SIZE=5
+```
+
+### Data Persistence
+Downloaded manga are stored in the `./data` directory on your host machine:
+```
+data/
+├── manga_name/
+│   ├── json/         # API response data
+│   ├── volumes/      # Downloaded images
+│   ├── cover_art.jpg # Manga cover
+│   └── manga_name.cbz/cbr # Final archive
+```
+
+### Troubleshooting Docker
+
+1. **Permission Issues**
+   ```bash
+   # Fix data directory permissions
+   chmod -R 755 data/
+   ```
+
+2. **Container Won't Start**
+   ```bash
+   # Check logs
+   docker-compose logs
+   
+   # Rebuild from scratch
+   docker-compose down
+   docker-compose build --no-cache
+   docker-compose up
+   ```
+
+3. **Changes Not Reflecting**
+   ```bash
+   # Restart with build
+   docker-compose down
+   docker-compose up --build
+   ```
+
+4. **Clean Start**
+   ```bash
+   # Remove all related containers and volumes
+   docker-compose down -v
+   docker-compose up --build
+   ```
+
+## Standard Installation
+
+If you prefer not to use Docker, you can install directly:
+
+1. Create a virtual environment and install dependencies using uv:
 ```bash
 uv venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
@@ -88,20 +201,6 @@ manga_name.cbz/cbr
 │ │ └── Chapter_002/
 │ └── Volume_02/
 
-```
-
-## Docker Compose Tips
-
-```
-$ docker-compose build --no-cache
-$ docker-compose up
-```
-
-if you change the docker-compose.yml
-
-```
-$ docker-compose down
-$ docker-compose up --build
 ```
 
 ## Dependencies
