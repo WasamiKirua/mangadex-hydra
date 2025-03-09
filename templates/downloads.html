@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manga Downloads ✨</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #fdf2f8;
+        }
+        .manga-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .manga-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(240, 171, 252, 0.2);
+        }
+        .btn-kawaii {
+            transition: all 0.3s ease;
+        }
+        .btn-kawaii:hover {
+            transform: scale(1.05);
+        }
+    </style>
+    <script>
+        function deleteManga(mangaName, element) {
+            if (confirm(`Are you sure you want to delete ${mangaName}? This action cannot be undone! 🥺`)) {
+                fetch(`/delete/${mangaName}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        // Remove the card from the UI
+                        element.closest('.manga-card').remove();
+                        // Show cute notification
+                        alert(`${mangaName} has been deleted! 👋`);
+                    } else {
+                        alert(`Oops! Something went wrong: ${data.error} 😢`);
+                    }
+                })
+                .catch(error => {
+                    alert(`Error: ${error} 😢`);
+                });
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-pink-100 to-purple-100 py-8">
+    <div class="container mx-auto px-4">
+        <!-- Kawaii Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-pink-600 mb-2">
+                📚 Your Manga Collection 📚
+            </h1>
+            <p class="text-purple-600">All your downloaded manga in one cute place! ✨</p>
+            <a href="/" class="inline-block mt-4 text-pink-500 hover:text-pink-600 transition-colors">
+                ← Back to Download Page
+            </a>
+        </div>
+
+        <!-- Manga Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {% if manga_files %}
+                {% for manga in manga_files %}
+                    <div class="manga-card rounded-2xl p-6 border-2 border-pink-200">
+                        <div class="flex flex-col h-full">
+                            <h3 class="text-xl font-semibold text-purple-600 mb-2">
+                                {{ manga.name }}
+                            </h3>
+                            <div class="flex items-center text-gray-600 mb-4 text-sm">
+                                <span class="bg-pink-100 text-pink-600 px-2 py-1 rounded-full text-xs mr-2">
+                                    {{ manga.type }}
+                                </span>
+                                <span>{{ manga.size }}</span>
+                            </div>
+                            <div class="flex gap-3 mt-auto">
+                                <a href="{{ url_for('download_file', manga_name=manga.name, filename=manga.file) }}"
+                                   class="btn-kawaii flex-1 bg-gradient-to-r from-pink-400 to-pink-500 text-white py-2 px-4 rounded-lg text-center hover:from-pink-500 hover:to-pink-600">
+                                    📥 Download
+                                </a>
+                                <button onclick="deleteManga('{{ manga.name }}', this)"
+                                        class="btn-kawaii bg-gradient-to-r from-purple-400 to-purple-500 text-white py-2 px-4 rounded-lg hover:from-purple-500 hover:to-purple-600">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-span-full text-center py-12">
+                    <div class="manga-card max-w-md mx-auto rounded-2xl p-8 border-2 border-pink-200">
+                        <p class="text-purple-600 text-lg mb-2">No manga downloads yet! 🎀</p>
+                        <p class="text-gray-600">Download some manga first to see them here!</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html> 

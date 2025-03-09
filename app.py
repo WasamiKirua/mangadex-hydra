@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 from functions import extraxt_id, make_dirs, get_cover_art, get_volumes, get_chapters_images, make_cbr_cbz
 import os
 from dotenv import load_dotenv
 import threading
 from threading import Thread
+import shutil
+from pathlib import Path
 
 app = Flask(__name__)
 load_dotenv()
@@ -68,8 +70,8 @@ def index():
 
         manga_name = manga_url.split("/")[-1]
         return render_template('index.html', 
-                             download_started=True,
-                             manga_name=manga_name)
+                                download_started=True,
+                                manga_name=manga_name)
     return render_template('index.html')
 
 @app.route('/status/<manga_name>')
@@ -79,39 +81,42 @@ def check_status(manga_name):
         'message': 'Download not found'
     }))
 
-@app.route('/download', methods=['POST'])
-def download():
-    data = request.get_json()
-    manga_url = data.get('manga_url')
-    if not manga_url:
-        return jsonify({'error': 'No manga URL provided'}), 400
-
-    manga_name = manga_url.split("/")[-1]
+@app.route('/downloads')
+def downloads():
+    manga_files = []
+    data_dir = Path('data')
     
-    # Initialize status for this manga
-    download_status[manga_name] = {
-        'status': 'starting',
-        'progress': 0,
-        'message': 'Starting download...'
-    }
+    if data_dir.exists():
+        for manga_dir in data_dir.iterdir():
+            if manga_dir.is_dir():
+                manga_name = manga_dir.name
+                for file in manga_dir.glob('*.cb[rz]'):
+                    manga_files.append({
+                        'name': manga_name,
+                        'file': file.name,
+                        'size': f"{file.stat().st_size / (1024*1024):.1f} MB",
+                        'type': file.suffix[1:].upper()
+                    })
+    
+    return render_template('downloads.html', manga_files=manga_files)
 
-    def download_manga():
+@app.route('/download/<path:manga_name>/<path:filename>')
+def download_file(manga_name, filename):
+    file_path = Path(f'data/{manga_name}/{filename}')
+    if file_path.exists():
+        return send_file(file_path, as_attachment=True)
+    return jsonify({'error': 'File not found'}), 404
+
+@app.route('/delete/<path:manga_name>', methods=['POST'])
+def delete_manga(manga_name):
+    manga_dir = Path(f'data/{manga_name}')
+    if manga_dir.exists():
         try:
-            make_dirs(manga_url)
-            manga_id = extraxt_id(manga_url)
-            get_cover_art(manga_id, manga_name)
-            get_volumes(manga_id, manga_name)
-            get_chapters_images(manga_name)
-            # Call make_cbr_cbz with just manga_name
-            make_cbr_cbz(manga_name)
-            update_status(manga_name, 'completed', 100, 'Download completed!')
+            shutil.rmtree(manga_dir)
+            return jsonify({'message': f'Successfully deleted {manga_name}'})
         except Exception as e:
-            update_status(manga_name, 'error', 0, f'Error: {str(e)}')
-
-    thread = Thread(target=download_manga)
-    thread.start()
-
-    return jsonify({'message': 'Download started', 'manga_name': manga_name})
+            return jsonify({'error': f'Failed to delete: {str(e)}'}), 500
+    return jsonify({'error': 'Manga directory not found'}), 404
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001) 
