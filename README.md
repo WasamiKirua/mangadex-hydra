@@ -34,7 +34,7 @@ A Python tool to download manga from MangaDex and create CBR/CBZ archives with p
 1. Clone the repository:
 ```bash
 git clone https://github.com/WasamiKirua/mangadex-hydra
-cd mangadex-downloader
+cd mangadex-hydra
 ```
 
 2. Build and start the containers:
