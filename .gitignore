@@ -1,0 +1,30 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.env
+*.json
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.bz2
+*.wim
+*.iso
+*.cbr
+*.cbz
+*.cbt
+*.cb7
+*.cba
+*.cbl
+*.cbq
+
+# Directories
+data/
