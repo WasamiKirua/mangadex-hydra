@@ -12,8 +12,8 @@ services:
       - ./main.py:/app/main.py
       # Mount templates directory
       - ./templates:/app/templates
-      # Mount data directory for manga storage
-      - manga_data:/app/data
+      # Mount data directory for manga storage on host
+      - ./data:/app/data
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
@@ -23,7 +23,3 @@ services:
     restart: unless-stopped
     # Use Flask development server with hot reload
     command: flask run --host=0.0.0.0 --port=5001 --reload
-
-volumes:
-  manga_data:
-    driver: local 

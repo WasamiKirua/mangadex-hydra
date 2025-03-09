@@ -169,8 +169,8 @@ async def process_batch(session, batch, manga_name, volume, chapter, base_url, h
 
 
 def download_images(manga_name, volume, chapter):
-    # Get the batch size
-    batch_size = os.getenv('BATCH_SIZE')
+    # Get the batch size and convert to int
+    batch_size = int(os.getenv('BATCH_SIZE', '5'))  # Default to 5 if not set
     
     with open(f'data/{manga_name}/json/volumes/{volume}/chapters/{chapter}/image_data.json', 'r') as f:
         image_data = json.load(f)
@@ -248,14 +248,19 @@ def get_chapters_images(manga_name):
             download_images(manga_name, volume, chapter)
 
 
-def make_cbr_cbz(manga_name):
+def make_cbr_cbz(manga_name, format_choice=None):
     try:
-        # Ask user for format preference
-        while True:
-            format_choice = input("Choose format (cbr/cbz): ").lower()
-            if format_choice in ['cbr', 'cbz']:
-                break
-            print(f'{Fore.RED}Please choose either "cbr" or "cbz"{Style.RESET_ALL}')
+        # If format_choice is not provided, ask user for preference
+        if format_choice is None:
+            while True:
+                format_choice = input("Choose format (cbr/cbz): ").lower()
+                if format_choice in ['cbr', 'cbz']:
+                    break
+                print(f'{Fore.RED}Please choose either "cbr" or "cbz"{Style.RESET_ALL}')
+        else:
+            format_choice = format_choice.lower()
+            if format_choice not in ['cbr', 'cbz']:
+                raise ValueError("Format must be either 'cbr' or 'cbz'")
 
         # Create temporary directory for organizing files
         temp_dir = f'data/{manga_name}/temp/{manga_name}'

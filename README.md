@@ -90,6 +90,20 @@ manga_name.cbz/cbr
 
 ```
 
+## Docker Compose Tips
+
+```
+$ docker-compose build --no-cache
+$ docker-compose up
+```
+
+if you change the docker-compose.yml
+
+```
+$ docker-compose down
+$ docker-compose up --build
+```
+
 ## Dependencies
 
 - requests: HTTP requests
