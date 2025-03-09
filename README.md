@@ -17,7 +17,7 @@ A Python tool to download manga from MangaDex and create CBR/CBZ archives with p
 ## Interface
 
 ### Download Page
-![Download Interface](screenshots/screenshot_download.png)
+![Download Interface](screenshots/screenshot_home.png)
 *The main download interface with real-time progress tracking*
 
 ### Downloads Manager
