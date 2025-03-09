@@ -62,6 +62,7 @@ python main.py
 
 ## Project Structure
 
+```
 data/
 ├── manga_name/
 │ ├── json/ # API response data
@@ -75,6 +76,7 @@ data/
 
 The generated CBR/CBZ will have the following structure:
 
+```
 manga_name.cbz/cbr
 ├── manga_name/
 │ ├── cover.jpg
