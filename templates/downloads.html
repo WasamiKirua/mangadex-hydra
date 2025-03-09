@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manga Downloads ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Add Toastify CSS and JS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
         body {
@@ -26,8 +29,39 @@
         .btn-kawaii:hover {
             transform: scale(1.05);
         }
+        /* Custom toast styles */
+        .toast-kawaii {
+            font-family: 'Quicksand', sans-serif !important;
+            border-radius: 1rem !important;
+            padding: 1rem !important;
+        }
+        .toast-success {
+            background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%) !important;
+        }
+        .toast-error {
+            background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%) !important;
+        }
     </style>
     <script>
+        function showKawaiiToast(message, type = 'success') {
+            const emojis = {
+                success: ['✨', '🌸', '💖', '🎀', '🌟'],
+                error: ['😢', '🥺', '💔', '😿', '🌧️']
+            };
+            const randomEmoji = emojis[type][Math.floor(Math.random() * emojis[type].length)];
+            
+            Toastify({
+                text: `${randomEmoji} ${message} ${randomEmoji}`,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                className: `toast-kawaii ${type === 'success' ? 'toast-success' : 'toast-error'}`,
+                style: {
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                }
+            }).showToast();
+        }
+
         function deleteManga(mangaName, element) {
             if (confirm(`Are you sure you want to delete ${mangaName}? This action cannot be undone! 🥺`)) {
                 fetch(`/delete/${mangaName}`, {
@@ -38,16 +72,39 @@
                     if (data.message) {
                         // Remove the card from the UI
                         element.closest('.manga-card').remove();
-                        // Show cute notification
-                        alert(`${mangaName} has been deleted! 👋`);
+                        // Show kawaii notification
+                        showKawaiiToast(`${mangaName} has been deleted!`);
+                        
+                        // Check if there are no more manga cards
+                        const remainingCards = document.querySelectorAll('.manga-card');
+                        if (remainingCards.length === 0) {
+                            location.reload(); // Reload to show the "No manga" message
+                        }
                     } else {
-                        alert(`Oops! Something went wrong: ${data.error} 😢`);
+                        showKawaiiToast(data.error || 'Something went wrong!', 'error');
                     }
                 })
                 .catch(error => {
-                    alert(`Error: ${error} 😢`);
+                    showKawaiiToast('Failed to delete manga!', 'error');
                 });
             }
+        }
+
+        function downloadManga(mangaName, filename) {
+            showKawaiiToast(`Starting download: ${filename}`);
+            
+            // Create a hidden link and click it
+            const link = document.createElement('a');
+            link.href = `/download/${mangaName}/${filename}`;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Show completion toast after a short delay
+            setTimeout(() => {
+                showKawaiiToast(`Download started! Check your downloads folder! 📥`);
+            }, 1000);
         }
     </script>
 </head>
@@ -80,10 +137,10 @@
                                 <span>{{ manga.size }}</span>
                             </div>
                             <div class="flex gap-3 mt-auto">
-                                <a href="{{ url_for('download_file', manga_name=manga.name, filename=manga.file) }}"
+                                <button onclick="downloadManga('{{ manga.name }}', '{{ manga.file }}')"
                                    class="btn-kawaii flex-1 bg-gradient-to-r from-pink-400 to-pink-500 text-white py-2 px-4 rounded-lg text-center hover:from-pink-500 hover:to-pink-600">
                                     📥 Download
-                                </a>
+                                </button>
                                 <button onclick="deleteManga('{{ manga.name }}', this)"
                                         class="btn-kawaii bg-gradient-to-r from-purple-400 to-purple-500 text-white py-2 px-4 rounded-lg hover:from-purple-500 hover:to-purple-600">
                                     🗑️
