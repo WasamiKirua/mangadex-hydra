@@ -1,4 +1,4 @@
-# MangaDex Downloader
+# MangaDex Hydra
 
 A Python tool to download manga from MangaDex and create CBR/CBZ archives with proper volume/chapter organization.
 
